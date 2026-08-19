@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Усреднение</title>
+<!--
+  Автономная версия для GitHub Pages.
+  История расчётов хранится в localStorage браузера (ключ "calc_history") —
+  данные приватны для конкретного браузера/устройства и не синхронизируются
+  между разными компьютерами или телефоном без дополнительного бэкенда.
+-->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -679,12 +685,26 @@ function updateDirectionBg(){
   document.body.style.background = dir==='long' ? '#0C2620' : '#2A1013';
 }
 
-// ---- history sync — runs inside the same Apps Script project, no URL/fetch needed ----
+// ---- history sync — localStorage (standalone GitHub Pages build, no server) ----
+const HISTORY_KEY = 'calc_history';
+
 function fmtDate(iso){
   try{
     const d = new Date(iso);
     return d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
   }catch(e){ return iso; }
+}
+
+function getHistoryArr(){
+  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function setHistoryArr(arr){
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(arr)); return true; }
+  catch(e){ return false; }
+}
+function makeId(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
 function renderHistory(list){
@@ -713,48 +733,64 @@ function renderHistory(list){
 }
 
 function loadHistory(){
-  google.script.run
-    .withSuccessHandler(renderHistory)
-    .withFailureHandler(()=>{ el('historyList').innerHTML = `<div class="empty-state">Ошибка загрузки истории</div>`; })
-    .calcListHistory();
+  const list = getHistoryArr()
+    .map(item=>({ id:item.id, timestamp:item.timestamp, instrument:item.instrument, note:item.note }))
+    .sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+  renderHistory(list);
 }
 
 function saveCalculation(){
   const note = el('saveNote').value;
-  const btn = el('saveCalcBtn');
-  btn.disabled = true; btn.textContent = 'Сохраняю…';
-  google.script.run
-    .withSuccessHandler(()=>{ el('saveNote').value=''; loadHistory(); btn.disabled=false; btn.textContent='Сохранить'; })
-    .withFailureHandler(()=>{ alert('Не удалось сохранить расчёт'); btn.disabled=false; btn.textContent='Сохранить'; })
-    .calcSaveHistory(currentInstr, note, JSON.stringify(state));
+  const arr = getHistoryArr();
+  arr.push({
+    id: makeId(),
+    timestamp: new Date().toISOString(),
+    instrument: currentInstr,
+    note: note,
+    stateJson: JSON.stringify(state)
+  });
+  if(setHistoryArr(arr)){
+    el('saveNote').value = '';
+    loadHistory();
+  } else {
+    alert('Не удалось сохранить — хранилище браузера недоступно или переполнено');
+  }
 }
 
 function updateCalculation(id, existingNote){
   const note = el('saveNote').value || existingNote || '';
-  google.script.run
-    .withSuccessHandler(()=>{ loadHistory(); })
-    .withFailureHandler(()=>{ alert('Не удалось обновить запись'); })
-    .calcUpdateHistory(id, currentInstr, note, JSON.stringify(state));
+  const arr = getHistoryArr();
+  const idx = arr.findIndex(i=> String(i.id)===String(id));
+  if(idx===-1){ alert('Запись не найдена'); return; }
+  arr[idx] = {
+    id: arr[idx].id,
+    timestamp: new Date().toISOString(),
+    instrument: currentInstr,
+    note: note,
+    stateJson: JSON.stringify(state)
+  };
+  if(setHistoryArr(arr)) loadHistory();
+  else alert('Не удалось обновить запись');
 }
 
 function loadCalculation(id){
-  google.script.run
-    .withSuccessHandler(data=>{
-      if(!data || data.error) return;
-      const parsed = JSON.parse(data.stateJson);
-      Object.keys(instruments).forEach(k=>{ if(parsed[k]) state[k] = parsed[k]; });
-      if(instruments[data.instrument]) currentInstr = data.instrument;
-      buildTabs(); renderForm(); renderCalc(); updateDirectionBg();
-    })
-    .withFailureHandler(()=>{ alert('Не удалось загрузить расчёт'); })
-    .calcLoadHistory(id);
+  const arr = getHistoryArr();
+  const item = arr.find(i=> String(i.id)===String(id));
+  if(!item) return;
+  try{
+    const parsed = JSON.parse(item.stateJson);
+    Object.keys(instruments).forEach(k=>{ if(parsed[k]) state[k] = parsed[k]; });
+    if(instruments[item.instrument]) currentInstr = item.instrument;
+    buildTabs(); renderForm(); renderCalc(); updateDirectionBg();
+  }catch(e){
+    alert('Не удалось загрузить расчёт');
+  }
 }
 
 function deleteCalculation(id){
-  google.script.run
-    .withSuccessHandler(()=>loadHistory())
-    .withFailureHandler(()=>{ alert('Не удалось удалить'); })
-    .calcDeleteHistory(id);
+  const arr = getHistoryArr().filter(i=> String(i.id)!==String(id));
+  if(setHistoryArr(arr)) loadHistory();
+  else alert('Не удалось удалить');
 }
 
 el('saveCalcBtn').addEventListener('click', saveCalculation);
