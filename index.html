@@ -56,67 +56,70 @@ body{
 .main{flex:1;min-height:0;display:grid;grid-template-columns:400px 1fr;grid-template-rows:1fr;gap:12px;}
 .col{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%;}
 
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
-.panel-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 10px;}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px 12px;}
+.panel-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 7px;}
 
 /* config grid */
-.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.field label{display:block;font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.field label{display:block;font-size:9px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em;}
 .field input{
   width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
-  border-radius:7px;padding:7px 9px;font-family:'Space Grotesk',sans-serif;font-size:13px;
+  border-radius:6px;padding:5px 8px;font-family:'Space Grotesk',sans-serif;font-size:12px;
 }
 .field input:focus{outline:none;border-color:var(--entry);}
-.dir-toggle{display:flex;border:1px solid var(--border);border-radius:7px;overflow:hidden;}
-.dir-btn{flex:1;padding:7px 0;background:var(--panel-2);color:var(--muted);border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;}
+.dir-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.dir-btn{flex:1;padding:5px 0;background:var(--panel-2);color:var(--muted);border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:11px;}
 .dir-btn.active.long{background:rgba(34,195,166,.18);color:var(--long);}
 .dir-btn.active.short{background:rgba(242,84,91,.18);color:var(--short);}
-.dynamic-note{margin-top:8px;font-size:10px;color:#F5A623;line-height:1.4;}
-.step-toggle{display:flex;border:1px solid var(--border);border-radius:7px;overflow:hidden;}
-.step-btn{flex:1;padding:6px 0;background:var(--panel-2);color:var(--muted);border:none;border-left:1px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:11px;}
+.dynamic-note{margin-top:6px;font-size:9px;color:#F5A623;line-height:1.35;}
+.step-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.step-btn{flex:1;padding:5px 0;background:var(--panel-2);color:var(--muted);border:none;border-left:1px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:10px;}
 .step-btn:first-child{border-left:none;}
 .step-btn.active{background:rgba(56,189,248,.18);color:var(--entry);}
 
 /* entries */
-.entries-panel{flex:1;min-height:0;display:flex;flex-direction:column;}
-.entries-head, .entry-row{display:grid;grid-template-columns:1fr 1fr 26px;gap:8px;align-items:center;}
-.entries-head{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;}
-.entries-scroll{overflow-y:auto;max-height:120px;padding-right:2px;}
-.entry-row{margin-bottom:6px;}
+.entries-panel{display:flex;flex-direction:column;}
+.entries-head, .entry-row{display:grid;grid-template-columns:1fr 1fr 24px;gap:6px;align-items:center;}
+.entries-head{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px;}
+.entries-scroll{overflow-y:auto;max-height:78px;padding-right:2px;}
+.entry-row{margin-bottom:5px;}
 .entry-row input{
   background:var(--panel-2);border:1px solid var(--border);color:var(--text);
-  border-radius:7px;padding:7px 9px;font-family:'Space Grotesk',sans-serif;font-size:13px;width:100%;
+  border-radius:6px;padding:5px 8px;font-family:'Space Grotesk',sans-serif;font-size:12px;width:100%;
 }
 .entry-row input:focus{outline:none;border-color:var(--entry);}
-.rm-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:7px;width:26px;height:28px;cursor:pointer;font-size:13px;}
+.rm-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:26px;cursor:pointer;font-size:12px;}
 .rm-btn:hover{border-color:var(--short);color:var(--short);}
 .add-btn{
-  margin-top:4px;background:none;border:1px dashed var(--border);color:var(--entry);
-  border-radius:7px;padding:7px 12px;cursor:pointer;font-family:'Space Grotesk',sans-serif;
-  font-size:12px;font-weight:600;width:100%;
+  margin-top:3px;background:none;border:1px dashed var(--border);color:var(--entry);
+  border-radius:6px;padding:5px 12px;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+  font-size:11px;font-weight:600;width:100%;
 }
 .add-btn:hover{border-color:var(--entry);background:rgba(56,189,248,.07);}
 
 /* reverse calc */
-.reverse-row{display:flex;gap:8px;align-items:end;}
-.reverse-row .field{flex:0 0 120px;}
-.reverse-result{flex:1;font-size:11px;color:var(--muted);}
-.reverse-result b{display:block;font-size:14px;color:var(--text);}
-.reverse-result.err b{color:var(--short);font-size:11px;}
+.reverse-row{display:flex;gap:6px;align-items:end;flex-wrap:wrap;}
+.reverse-row .field{flex:0 0 100px;}
+.reverse-result{flex:1;font-size:10px;color:var(--muted);min-width:90px;}
+.reverse-result b{display:block;font-size:13px;color:var(--text);}
+.reverse-result.err b{color:var(--short);font-size:10px;}
 .apply-btn{
-  background:var(--entry);border:none;color:#04222E;border-radius:7px;padding:8px 12px;
-  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;
+  background:var(--entry);border:none;color:#04222E;border-radius:6px;padding:6px 10px;
+  font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;
 }
 .apply-btn:disabled{opacity:.35;cursor:not-allowed;}
+.clear-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 8px;font-size:10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+.clear-btn:hover{border-color:var(--short);color:var(--short);}
 
-.rr-toggles{display:flex;flex-wrap:wrap;gap:6px;}
-.rr-toggle{display:flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--border);border-radius:7px;padding:5px 8px;cursor:pointer;user-select:none;font-size:11px;font-weight:600;color:var(--muted);}
+.rr-toggles{display:flex;flex-wrap:wrap;gap:5px;}
+.rr-toggle{display:flex;align-items:center;gap:4px;background:var(--panel-2);border:1px solid var(--border);border-radius:6px;padding:4px 7px;cursor:pointer;user-select:none;font-size:10px;font-weight:600;color:var(--muted);}
 .rr-toggle input{cursor:pointer;accent-color:var(--dot,var(--entry));}
-.rr-toggle .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.rr-toggle .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .rr-toggle.off{opacity:.4;}
 
 /* right column / ladder */
-.ladder-panel{flex:1;min-height:0;display:flex;flex-direction:column;}
+.right-split{display:grid;grid-template-columns:1fr 300px;gap:12px;flex:1;min-height:0;}
+.ladder-panel{min-height:0;display:flex;flex-direction:column;}
 .ladder-box{position:relative;flex:1;min-height:0;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--panel-2);}
 .tv-zone-bg{position:absolute;left:20%;right:20%;}
 .tv-line{position:absolute;left:20%;right:20%;border-top:1px solid rgba(255,255,255,.14);}
@@ -126,12 +129,18 @@ body{
 .tv-pill.center{left:50%;transform:translate(-50%,-50%);}
 .tv-pill.value{right:20%;transform:translate(50%,-50%);}
 
+/* history — narrow side column */
+.history-panel{min-height:0;display:flex;flex-direction:column;}
+.history-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:5px;overflow-y:auto;}
+
 /* results */
 .results-panel{flex:0 0 auto;}
-.result-top{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.result-top{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px;}
 .stat{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
+.stat.entry-stat{grid-column:span 2;display:flex;flex-direction:column;justify-content:center;}
 .stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
 .stat-val{font-size:14px;font-weight:600;color:var(--text);}
+.stat-val.big-entry{font-size:28px;line-height:1.1;white-space:nowrap;}
 .stat-val.risk{color:var(--short);}
 .stat-val.comm{color:#F5A623;}
 .rr-table{width:100%;border-collapse:collapse;}
@@ -143,23 +152,23 @@ body{
 .empty-state{color:var(--muted);font-size:12px;text-align:center;padding:14px 0;}
 
 /* history */
-.hist-url-row, .hist-save-row{display:flex;gap:8px;margin-bottom:8px;}
-.hist-url-row input, .hist-save-row input{
+.hist-save-row{display:flex;gap:8px;margin-bottom:8px;}
+.hist-save-row input{
   flex:1;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
   border-radius:7px;padding:7px 9px;font-family:'Space Grotesk',sans-serif;font-size:12px;
 }
-.hist-url-row input:focus, .hist-save-row input:focus{outline:none;border-color:var(--entry);}
-.history-list{display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;}
+.hist-save-row input:focus{outline:none;border-color:var(--entry);}
 .hist-item{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  background:var(--panel-2);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:11px;
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--panel-2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;font-size:11px;
 }
 .hist-item-main{display:flex;flex-direction:column;gap:2px;overflow:hidden;}
-.hist-item-main b{font-size:12px;color:var(--text);}
-.hist-item-main span{color:var(--muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.hist-item-btns{display:flex;gap:6px;flex-shrink:0;}
-.hist-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+.hist-item-main b{font-size:11px;color:var(--text);}
+.hist-item-main span{color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-item-btns{display:flex;gap:4px;flex-wrap:wrap;}
+.hist-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 7px;font-size:9px;cursor:pointer;font-family:'Space Grotesk',sans-serif;flex:1;}
 .hist-btn.load:hover{border-color:var(--entry);color:var(--entry);}
+.hist-btn.upd:hover{border-color:#F5A623;color:#F5A623;}
 .hist-btn.del:hover{border-color:var(--short);color:var(--short);}
 
 @media (max-width:900px){
@@ -179,7 +188,7 @@ body{
       <div class="instr-tabs" id="instrTabs"></div>
     </div>
     <div class="hdr-right">
-      <label class="toggle-label"><input type="checkbox" id="dirBgToggle"> фон по направлению</label>
+      <label class="toggle-label"><input type="checkbox" id="dirBgToggle" checked> фон по направлению</label>
       <button class="reset-btn" id="resetBtn">Сбросить актив</button>
     </div>
   </div>
@@ -223,30 +232,35 @@ body{
           <div class="reverse-result" id="reverseResult">—</div>
           <button class="apply-btn" id="applyReverse" disabled>Применить</button>
         </div>
+        <div class="reverse-row" style="margin-top:8px;">
+          <div class="field"><label>Таргет ($)</label><input type="number" id="targetProfit" step="any" placeholder="12000"></div>
+          <div class="reverse-result" id="targetResult">—</div>
+          <button class="apply-btn" id="applyTarget" disabled>Применить</button>
+          <button class="clear-btn" id="clearTarget" style="display:none;">×</button>
+        </div>
       </div>
     </div>
 
     <div class="col">
-      <div class="panel ladder-panel" id="ladderPanel" style="display:none;">
-        <p class="panel-title">Лестница цен</p>
-        <div class="ladder-box" id="ladderBox"></div>
+      <div class="right-split">
+        <div class="panel ladder-panel" id="ladderPanel" style="display:none;">
+          <p class="panel-title">Лестница цен</p>
+          <div class="ladder-box" id="ladderBox"></div>
+        </div>
+
+        <div class="panel history-panel">
+          <p class="panel-title">История расчётов</p>
+          <div class="hist-save-row">
+            <input type="text" id="saveNote" placeholder="Заметка">
+            <button class="apply-btn" id="saveCalcBtn">Сохранить</button>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
       </div>
+
       <div class="panel results-panel" id="resultsPanel">
         <p class="panel-title">Результат</p>
         <div id="resultsBody"></div>
-      </div>
-
-      <div class="panel">
-        <p class="panel-title">История расчётов</p>
-        <div class="hist-url-row">
-          <input type="text" id="scriptUrl" placeholder="URL Apps Script (…/exec)">
-          <button class="reset-btn" id="saveUrlBtn">Сохранить URL</button>
-        </div>
-        <div class="hist-save-row">
-          <input type="text" id="saveNote" placeholder="Заметка (необязательно)">
-          <button class="apply-btn" id="saveCalcBtn">Сохранить расчёт</button>
-        </div>
-        <div id="historyList" class="history-list"></div>
       </div>
     </div>
   </div>
@@ -269,8 +283,8 @@ const RR_DEFS = [
   {mult:4,   label:'RR 1:4',   color:'#3B82F6'},
   {mult:5,   label:'RR 1:5',   color:'#EC4899'},
 ];
-const enabledRR = {}; // global — all RR levels on by default, shared across instruments
-RR_DEFS.forEach(d => enabledRR[d.mult] = true);
+const enabledRR = {}; // global — only RR1:1 and RR1:2 on by default, shared across instruments
+RR_DEFS.forEach(d => enabledRR[d.mult] = (d.mult===1 || d.mult===2));
 function hexToRgba(hex, a){
   const v = hex.replace('#','');
   const r = parseInt(v.substring(0,2),16), g = parseInt(v.substring(2,4),16), b = parseInt(v.substring(4,6),16);
@@ -286,6 +300,8 @@ function getDefaultState(key){
     pointValue: cfg.pointValue, commission: cfg.commission,
     entries: [ {price:'', volume:''}, {price:'', volume:''} ],
     targetRisk: '',
+    targetProfit: '',
+    customTargetMult: null,
     priceStep: Math.pow(10, -cfg.decimals)
   };
 }
@@ -370,6 +386,9 @@ function renderForm(){
   el('pointValue').value = s.pointValue;
   el('commission').value = s.commission;
   el('targetRisk').value = s.targetRisk;
+  el('targetRisk').step = s.priceStep;
+  el('targetProfit').value = s.targetProfit;
+  el('targetProfit').step = s.priceStep;
   el('pointValueLabel').textContent = (currentInstr==='EURUSD'||currentInstr==='GBPUSD') ? '$/1.0 цены/лот' : '$/пункт/лот';
   el('dynamicNote').style.display = cfg.dynamicComm ? 'block' : 'none';
   el('dirLong').classList.toggle('active', s.direction==='long');
@@ -387,7 +406,7 @@ function buildEntryRows(){
     row.className='entry-row';
     row.innerHTML = `
       <input type="number" step="${s.priceStep}" placeholder="цена" value="${entry.price}" data-i="${i}" data-f="price">
-      <input type="number" step="any" placeholder="лоты" value="${entry.volume}" data-i="${i}" data-f="volume">
+      <input type="number" step="${s.priceStep}" placeholder="лоты" value="${entry.volume}" data-i="${i}" data-f="volume">
       <button class="rm-btn" data-i="${i}">×</button>`;
     list.appendChild(row);
   });
@@ -442,7 +461,18 @@ function calculate(){
     return {...lvl, priceTarget, priceAdjusted, netProfit, netPercent, dist:distToSL*lvl.mult};
   });
 
-  return { deposit, slPrice, avgEntry, totalVolume, distToSL, totalCommission, riskGross, riskNet, riskPercent, rrLevels, decimals:cfg.decimals, direction:s.direction };
+  let customLevel = null;
+  if(s.customTargetMult){
+    const mult = s.customTargetMult;
+    const priceTarget = s.direction==='long' ? avgEntry + distToSL*mult : avgEntry - distToSL*mult;
+    const priceAdjusted = s.direction==='long' ? priceTarget + commissionDistance : priceTarget - commissionDistance;
+    const grossProfit = distToSL*mult*totalVolume*pointValue;
+    const netProfit = grossProfit - totalCommission;
+    const netPercent = netProfit/deposit*100;
+    customLevel = { mult, label:'Цель RR 1:'+fmt(mult,2), color:'#F1F5F9', priceTarget, priceAdjusted, netProfit, netPercent, dist:distToSL*mult };
+  }
+
+  return { deposit, slPrice, avgEntry, totalVolume, distToSL, totalCommission, riskGross, riskNet, riskPercent, rrLevels, customLevel, decimals:cfg.decimals, direction:s.direction };
 }
 
 function calculateReverse(){
@@ -484,6 +514,52 @@ function renderReverse(){
   };
 }
 
+function calculateTarget(){
+  const s = state[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  const slPrice = parseFloat(s.slPrice);
+  const targetProfit = parseFloat(s.targetProfit);
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(slPrice) || isNaN(targetProfit) || pointValue<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const distToSL = Math.abs(avgEntry - slPrice);
+  if(distToSL<=0) return null;
+  const totalCommission = totalVolume*commissionPerLot;
+  const denom = distToSL*totalVolume*pointValue;
+  if(denom<=0) return null;
+
+  const requiredMult = (targetProfit+totalCommission)/denom;
+  if(requiredMult<=0) return { error:true };
+  const targetPrice = s.direction==='long' ? avgEntry+distToSL*requiredMult : avgEntry-distToSL*requiredMult;
+  return { requiredMult, targetPrice };
+}
+
+function renderTarget(){
+  const cfg = instruments[currentInstr];
+  const s = state[currentInstr];
+  const t = calculateTarget();
+  const box = el('targetResult');
+  const btn = el('applyTarget');
+  const clearBtn = el('clearTarget');
+  clearBtn.style.display = s.customTargetMult ? 'inline-block' : 'none';
+  if(!t){ box.innerHTML = '—'; box.classList.remove('err'); btn.disabled = true; return; }
+  if(t.error){ box.innerHTML = 'таргет недостижим'; box.classList.add('err'); btn.disabled = true; return; }
+  box.classList.remove('err');
+  box.innerHTML = `RR 1:${fmt(t.requiredMult,2)}<b>${fmt(t.targetPrice, cfg.decimals)}</b>`;
+  btn.disabled = false;
+  btn.onclick = ()=>{
+    state[currentInstr].customTargetMult = t.requiredMult;
+    renderCalc();
+  };
+  clearBtn.onclick = ()=>{
+    state[currentInstr].customTargetMult = null;
+    renderCalc();
+  };
+}
+
 function renderLadder(res){
   const panel = el('ladderPanel');
   const box = el('ladderBox');
@@ -492,11 +568,12 @@ function renderLadder(res){
   box.innerHTML='';
 
   const visibleRR = res.rrLevels.filter(l => enabledRR[l.mult]);
+  const allProfitLevels = res.customLevel ? [...visibleRR, res.customLevel] : visibleRR;
 
   const points = [
     {key:'sl',    label:'Стоп', price:res.slPrice,  valText: fmtMoney(-res.riskNet),                 hex:'#F2545B', a:0.9,  dashed:false},
     {key:'entry', label:'ВХОД', price:res.avgEntry, valText: fmt(res.totalVolume,2)+' лот',           hex:'#38BDF8', a:0.9,  dashed:true},
-    ...visibleRR.map(l=>({key:l.label, label:l.label, price:l.priceTarget, valText: fmtMoney(l.netProfit), hex:l.color, a:0.9, dashed:false}))
+    ...allProfitLevels.map(l=>({key:l.label, label:l.label, price:l.priceTarget, valText: fmtMoney(l.netProfit), hex:l.color, a:0.9, dashed:false}))
   ];
   const prices = points.map(p=>p.price);
   const min = Math.min(...prices), max = Math.max(...prices);
@@ -517,8 +594,8 @@ function renderLadder(res){
   zoneRisk.style.cssText = `top:${redTop}%;height:${redHeight}%;background:rgba(242,84,91,.14);`;
   box.appendChild(zoneRisk);
 
-  if(visibleRR.length){
-    const farthest = visibleRR.reduce((a,b)=> b.mult>a.mult ? b : a); // max enabled RR
+  if(allProfitLevels.length){
+    const farthest = allProfitLevels.reduce((a,b)=> b.mult>a.mult ? b : a); // max enabled RR / custom target
     const profitPct = pctOf(farthest.priceTarget);
     const greenTop = Math.min(profitPct, entryPct);
     const greenHeight = Math.abs(profitPct - entryPct);
@@ -569,7 +646,7 @@ function renderResults(res){
   }
   body.innerHTML = `
     <div class="result-top">
-      <div class="stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val">${fmt(res.avgEntry,res.decimals)}</div></div>
+      <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry">${fmt(res.avgEntry,res.decimals)}</div></div>
       <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(res.totalVolume,2)}</div></div>
       <div class="stat"><div class="stat-lbl">Комиссия</div><div class="stat-val comm">${fmtMoney(res.totalCommission)}</div></div>
       <div class="stat"><div class="stat-lbl">Риск (${fmt(res.riskPercent,2)}%)</div><div class="stat-val risk">${fmtMoney(res.riskNet)}</div></div>
@@ -577,7 +654,7 @@ function renderResults(res){
     <table class="rr-table">
       <thead><tr><th>Уровень</th><th>Цена</th><th>Цена с комиссией</th><th>Итого</th><th>% депо</th></tr></thead>
       <tbody>
-        ${res.rrLevels.filter(l => enabledRR[l.mult]).map(l=>{
+        ${res.rrLevels.filter(l => enabledRR[l.mult]).concat(res.customLevel ? [res.customLevel] : []).map(l=>{
           const hex = l.color;
           const bg = hexToRgba(hex, 0.14);
           const border = hexToRgba(hex, 0.9);
@@ -602,11 +679,7 @@ function updateDirectionBg(){
   document.body.style.background = dir==='long' ? '#0C2620' : '#2A1013';
 }
 
-// ---- history sync (Google Apps Script backend) ----
-const SCRIPT_URL_KEY = 'avg_calc_script_url';
-let scriptUrl = '';
-try{ scriptUrl = localStorage.getItem(SCRIPT_URL_KEY) || ''; }catch(e){}
-
+// ---- history sync — runs inside the same Apps Script project, no URL/fetch needed ----
 function fmtDate(iso){
   try{
     const d = new Date(iso);
@@ -616,10 +689,11 @@ function fmtDate(iso){
 
 function renderHistory(list){
   const box = el('historyList');
-  if(!list || list.error){ box.innerHTML = `<div class="empty-state">Не удалось загрузить историю</div>`; return; }
+  if(!list){ box.innerHTML = `<div class="empty-state">Не удалось загрузить историю</div>`; return; }
   if(list.length===0){ box.innerHTML = `<div class="empty-state">Пока пусто</div>`; return; }
   box.innerHTML = list.map(item=>{
     const cfg = instruments[item.instrument] || {};
+    const noteAttr = (item.note||'').replace(/"/g,'&quot;');
     return `
       <div class="hist-item">
         <div class="hist-item-main">
@@ -628,76 +702,70 @@ function renderHistory(list){
         </div>
         <div class="hist-item-btns">
           <button class="hist-btn load" data-id="${item.id}">Загрузить</button>
+          <button class="hist-btn upd" data-id="${item.id}" data-note="${noteAttr}">Обновить</button>
           <button class="hist-btn del" data-id="${item.id}">Удалить</button>
         </div>
       </div>`;
   }).join('');
   box.querySelectorAll('.hist-btn.load').forEach(b=> b.addEventListener('click', ()=> loadCalculation(b.dataset.id)));
+  box.querySelectorAll('.hist-btn.upd').forEach(b=> b.addEventListener('click', ()=> updateCalculation(b.dataset.id, b.dataset.note)));
   box.querySelectorAll('.hist-btn.del').forEach(b=> b.addEventListener('click', ()=> deleteCalculation(b.dataset.id)));
 }
 
 function loadHistory(){
-  if(!scriptUrl) { el('historyList').innerHTML = `<div class="empty-state">Укажи URL Apps Script выше</div>`; return; }
-  fetch(scriptUrl + '?action=list')
-    .then(r=>r.json())
-    .then(renderHistory)
-    .catch(()=>{ el('historyList').innerHTML = `<div class="empty-state">Ошибка соединения со скриптом</div>`; });
+  google.script.run
+    .withSuccessHandler(renderHistory)
+    .withFailureHandler(()=>{ el('historyList').innerHTML = `<div class="empty-state">Ошибка загрузки истории</div>`; })
+    .calcListHistory();
 }
 
 function saveCalculation(){
-  if(!scriptUrl){ alert('Сначала укажи и сохрани URL Apps Script'); return; }
   const note = el('saveNote').value;
   const btn = el('saveCalcBtn');
   btn.disabled = true; btn.textContent = 'Сохраняю…';
-  fetch(scriptUrl, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({ action:'save', instrument: currentInstr, note: note, state: state[currentInstr] })
-  })
-    .then(r=>r.json())
-    .then(()=>{ el('saveNote').value=''; loadHistory(); })
-    .catch(()=>{ alert('Не удалось сохранить — проверь URL скрипта'); })
-    .finally(()=>{ btn.disabled=false; btn.textContent='Сохранить расчёт'; });
+  google.script.run
+    .withSuccessHandler(()=>{ el('saveNote').value=''; loadHistory(); btn.disabled=false; btn.textContent='Сохранить'; })
+    .withFailureHandler(()=>{ alert('Не удалось сохранить расчёт'); btn.disabled=false; btn.textContent='Сохранить'; })
+    .calcSaveHistory(currentInstr, note, JSON.stringify(state));
+}
+
+function updateCalculation(id, existingNote){
+  const note = el('saveNote').value || existingNote || '';
+  google.script.run
+    .withSuccessHandler(()=>{ loadHistory(); })
+    .withFailureHandler(()=>{ alert('Не удалось обновить запись'); })
+    .calcUpdateHistory(id, currentInstr, note, JSON.stringify(state));
 }
 
 function loadCalculation(id){
-  if(!scriptUrl) return;
-  fetch(scriptUrl + '?action=load&id=' + encodeURIComponent(id))
-    .then(r=>r.json())
-    .then(data=>{
-      if(data.error || !instruments[data.instrument]) return;
-      currentInstr = data.instrument;
-      state[currentInstr] = data.state;
+  google.script.run
+    .withSuccessHandler(data=>{
+      if(!data || data.error) return;
+      const parsed = JSON.parse(data.stateJson);
+      Object.keys(instruments).forEach(k=>{ if(parsed[k]) state[k] = parsed[k]; });
+      if(instruments[data.instrument]) currentInstr = data.instrument;
       buildTabs(); renderForm(); renderCalc(); updateDirectionBg();
     })
-    .catch(()=>{ alert('Не удалось загрузить расчёт'); });
+    .withFailureHandler(()=>{ alert('Не удалось загрузить расчёт'); })
+    .calcLoadHistory(id);
 }
 
 function deleteCalculation(id){
-  if(!scriptUrl) return;
-  fetch(scriptUrl, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({ action:'delete', id: id })
-  })
-    .then(()=>loadHistory())
-    .catch(()=>{ alert('Не удалось удалить'); });
+  google.script.run
+    .withSuccessHandler(()=>loadHistory())
+    .withFailureHandler(()=>{ alert('Не удалось удалить'); })
+    .calcDeleteHistory(id);
 }
 
-el('scriptUrl').value = scriptUrl;
-el('saveUrlBtn').addEventListener('click', ()=>{
-  scriptUrl = el('scriptUrl').value.trim();
-  try{ localStorage.setItem(SCRIPT_URL_KEY, scriptUrl); }catch(e){}
-  loadHistory();
-});
 el('saveCalcBtn').addEventListener('click', saveCalculation);
-if(scriptUrl) loadHistory(); else el('historyList').innerHTML = `<div class="empty-state">Укажи URL Apps Script выше</div>`;
+loadHistory();
 
 function renderCalc(){
   const res = calculate();
   renderResults(res);
   renderLadder(res);
   renderReverse();
+  renderTarget();
 }
 
 el('addEntry').addEventListener('click', ()=>{
@@ -707,7 +775,7 @@ el('addEntry').addEventListener('click', ()=>{
 });
 el('dirLong').addEventListener('click', ()=>{ state[currentInstr].direction='long'; renderForm(); renderCalc(); updateDirectionBg(); });
 el('dirShort').addEventListener('click', ()=>{ state[currentInstr].direction='short'; renderForm(); renderCalc(); updateDirectionBg(); });
-['deposit','slPrice','pointValue','commission','targetRisk'].forEach(id=>{
+['deposit','slPrice','pointValue','commission','targetRisk','targetProfit'].forEach(id=>{
   el(id).addEventListener('input', e=>{ state[currentInstr][id] = e.target.value; renderCalc(); });
 });
 el('resetBtn').addEventListener('click', ()=>{
