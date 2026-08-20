@@ -70,7 +70,7 @@ body{
 .field label{display:block;font-size:9px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em;}
 .field input{
   width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
-  border-radius:6px;padding:5px 8px;font-family:'Space Grotesk',sans-serif;font-size:12px;
+  border-radius:6px;padding:6px 8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
 }
 .field input:focus{outline:none;border-color:var(--entry);}
 .dir-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
@@ -91,7 +91,7 @@ body{
 .entry-row{margin-bottom:5px;}
 .entry-row input{
   background:var(--panel-2);border:1px solid var(--border);color:var(--text);
-  border-radius:6px;padding:5px 8px;font-family:'Space Grotesk',sans-serif;font-size:12px;width:100%;
+  border-radius:6px;padding:6px 8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;width:100%;
 }
 .entry-row input:focus{outline:none;border-color:var(--entry);}
 .rm-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:26px;cursor:pointer;font-size:12px;}
@@ -106,8 +106,8 @@ body{
 /* reverse calc */
 .reverse-row{display:flex;gap:6px;align-items:end;flex-wrap:wrap;}
 .reverse-row .field{flex:0 0 100px;}
-.reverse-result{flex:1;font-size:10px;color:var(--muted);min-width:90px;}
-.reverse-result b{display:block;font-size:13px;color:var(--text);}
+.reverse-result{flex:1;font-size:12px;color:var(--muted);min-width:90px;}
+.reverse-result b{display:block;font-size:19px;color:var(--text);}
 .reverse-result.err b{color:var(--short);font-size:10px;}
 .apply-btn{
   background:var(--entry);border:none;color:#04222E;border-radius:6px;padding:6px 10px;
@@ -130,7 +130,7 @@ body{
 .tv-zone-bg{position:absolute;left:20%;right:20%;}
 .tv-line{position:absolute;left:20%;right:20%;border-top:1px solid rgba(255,255,255,.14);}
 .tv-line.entry-line{border-top-style:dashed;}
-.tv-pill{position:absolute;top:0;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap;}
+.tv-pill{position:absolute;top:0;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:15px;font-weight:700;white-space:nowrap;}
 .tv-pill.price{left:20%;transform:translate(-50%,-50%);}
 .tv-pill.center{left:50%;transform:translate(-50%,-50%);}
 .tv-pill.value{right:20%;transform:translate(50%,-50%);}
@@ -145,13 +145,13 @@ body{
 .stat{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
 .stat.entry-stat{grid-column:span 2;display:flex;flex-direction:column;justify-content:center;}
 .stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
-.stat-val{font-size:14px;font-weight:600;color:var(--text);}
-.stat-val.big-entry{font-size:28px;line-height:1.1;white-space:nowrap;}
+.stat-val{font-size:23px;font-weight:700;color:var(--text);}
+.stat-val.big-entry{font-size:34px;line-height:1.1;white-space:nowrap;}
 .stat-val.risk{color:var(--short);}
 .stat-val.comm{color:#F5A623;}
 .rr-table{width:100%;border-collapse:collapse;}
 .rr-table th{text-align:left;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:0 6px 6px;font-weight:600;}
-.rr-table td{padding:6px 6px;border-top:1px solid var(--border);font-size:12px;}
+.rr-table td{padding:8px 6px;border-top:1px solid var(--border);font-size:16px;font-weight:600;}
 .rr-table tr td:first-child{font-weight:600;}
 .rr-table .net{color:var(--long);font-weight:600;}
 .rr-table .muted-cell{color:var(--muted);}
@@ -238,11 +238,21 @@ body{
           <div class="reverse-result" id="reverseResult">—</div>
           <button class="apply-btn" id="applyReverse" disabled>Применить</button>
         </div>
+        <div class="reverse-row" style="margin-top:6px;">
+          <div class="field"><label>Цена стопа</label><input type="number" id="stopPriceInput" step="any" placeholder="1.15200"></div>
+          <div class="reverse-result" id="stopPriceResult">—</div>
+          <button class="apply-btn" id="applyStopPrice" disabled>Применить</button>
+        </div>
         <div class="reverse-row" style="margin-top:8px;">
           <div class="field"><label>Таргет ($)</label><input type="number" id="targetProfit" step="any" placeholder="12000"></div>
           <div class="reverse-result" id="targetResult">—</div>
           <button class="apply-btn" id="applyTarget" disabled>Применить</button>
           <button class="clear-btn" id="clearTarget" style="display:none;">×</button>
+        </div>
+        <div class="reverse-row" style="margin-top:6px;">
+          <div class="field"><label>Цена таргета</label><input type="number" id="targetPriceInput" step="any" placeholder="1.16000"></div>
+          <div class="reverse-result" id="targetPriceResult">—</div>
+          <button class="apply-btn" id="applyTargetPrice" disabled>Применить</button>
         </div>
       </div>
     </div>
@@ -307,6 +317,8 @@ function getDefaultState(key){
     entries: [ {price:'', volume:''}, {price:'', volume:''} ],
     targetRisk: '',
     targetProfit: '',
+    targetPriceInput: '',
+    stopPriceInput: '',
     customTargetMult: null,
     priceStep: Math.pow(10, -cfg.decimals)
   };
@@ -395,6 +407,10 @@ function renderForm(){
   el('targetRisk').step = s.priceStep;
   el('targetProfit').value = s.targetProfit;
   el('targetProfit').step = s.priceStep;
+  el('targetPriceInput').value = s.targetPriceInput;
+  el('targetPriceInput').step = s.priceStep;
+  el('stopPriceInput').value = s.stopPriceInput;
+  el('stopPriceInput').step = s.priceStep;
   el('pointValueLabel').textContent = (currentInstr==='EURUSD'||currentInstr==='GBPUSD') ? '$/1.0 цены/лот' : '$/пункт/лот';
   el('dynamicNote').style.display = cfg.dynamicComm ? 'block' : 'none';
   el('dirLong').classList.toggle('active', s.direction==='long');
@@ -562,6 +578,76 @@ function renderTarget(){
   };
   clearBtn.onclick = ()=>{
     state[currentInstr].customTargetMult = null;
+    renderCalc();
+  };
+}
+
+function calculateTargetFromPrice(){
+  const s = state[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  const priceVal = parseFloat(s.targetPriceInput);
+  const slPrice = parseFloat(s.slPrice);
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(priceVal) || isNaN(slPrice) || pointValue<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const distToSL = Math.abs(avgEntry - slPrice);
+  if(distToSL<=0) return null;
+
+  const dist = s.direction==='long' ? priceVal-avgEntry : avgEntry-priceVal;
+  if(dist<=0) return { error:true };
+
+  const mult = dist/distToSL;
+  const totalCommission = totalVolume*commissionPerLot;
+  const grossProfit = dist*totalVolume*pointValue;
+  const netProfit = grossProfit - totalCommission;
+  return { mult, netProfit };
+}
+
+function renderTargetPrice(){
+  const t = calculateTargetFromPrice();
+  const box = el('targetPriceResult');
+  const btn = el('applyTargetPrice');
+  if(!t){ box.innerHTML = '—'; box.classList.remove('err'); btn.disabled = true; return; }
+  if(t.error){ box.innerHTML = 'цена не в сторону профита'; box.classList.add('err'); btn.disabled = true; return; }
+  box.classList.remove('err');
+  box.innerHTML = `RR 1:${fmt(t.mult,2)}<b>${fmtMoney(t.netProfit)}</b>`;
+  btn.disabled = false;
+  btn.onclick = ()=>{
+    state[currentInstr].customTargetMult = t.mult;
+    renderCalc();
+  };
+}
+
+function calculateStopFromPrice(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  const priceVal = parseFloat(s.stopPriceInput);
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(priceVal) || pointValue<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const totalCommission = totalVolume*commissionPerLot;
+  const dist = Math.abs(avgEntry - priceVal);
+  const riskNet = dist*totalVolume*pointValue + totalCommission;
+  return { riskNet, decimals:cfg.decimals, priceVal };
+}
+
+function renderStopPrice(){
+  const r = calculateStopFromPrice();
+  const box = el('stopPriceResult');
+  const btn = el('applyStopPrice');
+  if(!r){ box.innerHTML = '—'; btn.disabled = true; return; }
+  box.innerHTML = `риск<b>${fmtMoney(r.riskNet)}</b>`;
+  btn.disabled = false;
+  btn.onclick = ()=>{
+    state[currentInstr].slPrice = r.priceVal.toFixed(r.decimals);
+    el('slPrice').value = state[currentInstr].slPrice;
     renderCalc();
   };
 }
@@ -802,6 +888,8 @@ function renderCalc(){
   renderLadder(res);
   renderReverse();
   renderTarget();
+  renderTargetPrice();
+  renderStopPrice();
 }
 
 el('addEntry').addEventListener('click', ()=>{
@@ -811,7 +899,7 @@ el('addEntry').addEventListener('click', ()=>{
 });
 el('dirLong').addEventListener('click', ()=>{ state[currentInstr].direction='long'; renderForm(); renderCalc(); updateDirectionBg(); });
 el('dirShort').addEventListener('click', ()=>{ state[currentInstr].direction='short'; renderForm(); renderCalc(); updateDirectionBg(); });
-['deposit','slPrice','pointValue','commission','targetRisk','targetProfit'].forEach(id=>{
+['deposit','slPrice','pointValue','commission','targetRisk','targetProfit','targetPriceInput','stopPriceInput'].forEach(id=>{
   el(id).addEventListener('input', e=>{ state[currentInstr][id] = e.target.value; renderCalc(); });
 });
 el('resetBtn').addEventListener('click', ()=>{
