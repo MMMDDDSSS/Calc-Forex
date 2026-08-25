@@ -108,7 +108,7 @@ body{
 .reverse-row .field{flex:0 0 100px;}
 .reverse-result{flex:1;font-size:12px;color:var(--muted);min-width:90px;}
 .reverse-result b{display:block;font-size:19px;color:var(--text);}
-.reverse-result.err b{color:var(--short);font-size:10px;}
+.reverse-result.err b{color:var(--short);font-size:12px;}
 .apply-btn{
   background:var(--entry);border:none;color:#04222E;border-radius:6px;padding:6px 10px;
   font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;
@@ -313,11 +313,13 @@ function getDefaultState(key){
   const cfg = instruments[key];
   return {
     deposit: 100000, direction: 'long', slPrice: '',
+    stopAutoFilled: false, // true, если стоп подставлен автоматически (не руками) — тогда его можно пересчитывать
     pointValue: cfg.pointValue, commission: cfg.commission,
-    entries: [ {price:'', volume:''}, {price:'', volume:''} ],
+    entries: [ {price:'', volume:'', volumeAutoFilled:false}, {price:'', volume:'', volumeAutoFilled:false} ],
     targetRisk: '',
     targetProfit: '',
     targetPriceInput: '',
+    lastTargetField: null, // 'profit' | 'price' | null — какое из полей таргета редактировали последним, второе подстраивается под него
     stopPriceInput: '',
     customTargetMult: null,
     priceStep: Math.pow(10, -cfg.decimals)
@@ -436,6 +438,7 @@ function buildEntryRows(){
     inp.addEventListener('input', e=>{
       const i = +e.target.dataset.i, f = e.target.dataset.f;
       state[currentInstr].entries[i][f] = e.target.value;
+      if(f==='volume') state[currentInstr].entries[i].volumeAutoFilled = false; // лот введён вручную — не подставляем дефолт поверх
       renderCalc();
     });
   });
@@ -531,6 +534,7 @@ function renderReverse(){
   btn.disabled = false;
   btn.onclick = ()=>{
     state[currentInstr].slPrice = r.slComputed.toFixed(cfg.decimals);
+    state[currentInstr].stopAutoFilled = false; // применено явным действием пользователя
     el('slPrice').value = state[currentInstr].slPrice;
     renderCalc();
   };
@@ -606,6 +610,140 @@ function calculateTargetFromPrice(){
   return { mult, netProfit };
 }
 
+// синхронизация «Таргет ($)» ↔ «Цена таргета»: какое поле редактировали
+// последним — то ведущее, второе подстраивается под него автоматически.
+// Работает только когда уже известен стоп (без него нет базы для RR).
+function syncTargetFields(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  if(s.lastTargetField === 'profit'){
+    const t = calculateTarget();
+    if(!t || t.error) return;
+    const newVal = t.targetPrice.toFixed(cfg.decimals);
+    if(s.targetPriceInput !== newVal){
+      s.targetPriceInput = newVal;
+      el('targetPriceInput').value = newVal;
+    }
+  } else if(s.lastTargetField === 'price'){
+    const t = calculateTargetFromPrice();
+    if(!t || t.error) return;
+    const newVal = t.netProfit.toFixed(2);
+    if(s.targetProfit !== newVal){
+      s.targetProfit = newVal;
+      el('targetProfit').value = newVal;
+    }
+  }
+}
+
+// если у входа указана цена, а лот пуст (или ранее был подставлен
+// автоматически) — подставляем 1 лот и отражаем это в самом поле «Лоты»,
+// чтобы было видно, на основании чего считается результат. Ручной ввод лота
+// это отключает (флаг volumeAutoFilled сбрасывается в обработчике input).
+function autoFillEntryVolumes(){
+  const s = state[currentInstr];
+  s.entries.forEach((entry, i)=>{
+    const priceNum = parseFloat(entry.price);
+    if(isNaN(priceNum)) return; // цена ещё не введена — лот не трогаем
+    const manualVolume = entry.volume !== '' && !entry.volumeAutoFilled;
+    if(manualVolume) return; // лот введён вручную — не подставляем
+    if(entry.volume === '1' && entry.volumeAutoFilled) return; // уже стоит дефолт — ничего не меняем
+    entry.volume = '1';
+    entry.volumeAutoFilled = true;
+    const input = document.querySelector(`#entriesList input[data-i="${i}"][data-f="volume"]`);
+    if(input) input.value = '1';
+  });
+}
+
+// среднюю цену входа для подбора стопа считаем даже без указанных лотов —
+// для RR по цене лоты не нужны, только сами цены; лоты используем как вес,
+// если они заданы, иначе вес по умолчанию = 1
+function getAvgEntryPriceOnly(s){
+  const withPrice = s.entries
+    .map(e=>({price:parseFloat(e.price), volume:parseFloat(e.volume)}))
+    .filter(e=>!isNaN(e.price));
+  if(withPrice.length===0) return null;
+  const weighted = withPrice.map(e=>({price:e.price, weight:(!isNaN(e.volume) && e.volume>0) ? e.volume : 1}));
+  const totalWeight = weighted.reduce((sum,e)=>sum+e.weight,0);
+  return weighted.reduce((sum,e)=>sum+e.price*e.weight,0)/totalWeight;
+}
+
+// входы с ценой, но лоты не обязательны — если лот не указан, считаем его
+// равным 1 (используется автоподстановкой по сумме $, чтобы она работала
+// даже до того, как реальные лоты заполнены)
+function getEntriesDefaultVolume(s){
+  return s.entries
+    .map(e=>({price:parseFloat(e.price), volume:parseFloat(e.volume)}))
+    .filter(e=>!isNaN(e.price))
+    .map(e=>({price:e.price, volume:(!isNaN(e.volume) && e.volume>0) ? e.volume : 1}));
+}
+
+// автоподстановка стопа под RR 1:2 от цены таргета — лоты не обязательны.
+// Пересчитывается на каждое изменение, пока стоп не введён руками (стоп,
+// подставленный автоматически, свободно перезаписывается новым расчётом).
+function autoFillStopFromTargetPrice(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  if(s.slPrice !== '' && !s.stopAutoFilled) return false; // стоп введён вручную — не трогаем
+  const priceVal = parseFloat(s.targetPriceInput);
+  if(isNaN(priceVal)) return false;
+  const avgEntry = getAvgEntryPriceOnly(s);
+  if(avgEntry===null) return false;
+  const targetDist = s.direction==='long' ? priceVal-avgEntry : avgEntry-priceVal;
+  if(targetDist<=0) return false; // цена таргета не в сторону профита — не подставляем
+  const stopDist = targetDist/2; // RR 1:2 → риск вдвое меньше цели
+  const slComputed = s.direction==='long' ? avgEntry-stopDist : avgEntry+stopDist;
+  s.slPrice = slComputed.toFixed(cfg.decimals);
+  s.stopAutoFilled = true;
+  el('slPrice').value = s.slPrice;
+  return true;
+}
+
+// то же самое, но от поля «Таргет ($)» — лоты тоже не обязательны: если не
+// заданы, считаем по умолчанию 1 лот на каждый заполненный вход (как только
+// реальные лоты будут вписаны, стоп сам пересчитается под них)
+function autoFillStopFromTargetProfit(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  if(s.slPrice !== '' && !s.stopAutoFilled) return false; // стоп введён вручную — не трогаем
+  const targetProfit = parseFloat(s.targetProfit);
+  if(isNaN(targetProfit) || targetProfit<=0) return false;
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  if(pointValue<=0) return false;
+  const valid = getEntriesDefaultVolume(s);
+  if(valid.length===0) return false;
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const totalCommission = totalVolume*commissionPerLot;
+  const risk = targetProfit/2; // RR 1:2 → риск вдвое меньше цели
+  const netForDistance = risk - totalCommission;
+  if(netForDistance<=0) return false; // комиссия съедает весь допустимый риск — не подставляем
+  const distance = netForDistance/(totalVolume*pointValue);
+  const slComputed = s.direction==='long' ? avgEntry-distance : avgEntry+distance;
+  s.slPrice = slComputed.toFixed(cfg.decimals);
+  s.stopAutoFilled = true;
+  el('slPrice').value = s.slPrice;
+  return true;
+}
+
+
+// пробуем оба способа подстановки стопа под RR 1:2 — сначала по цене таргета
+// (не требует лотов), потом по сумме таргета (требует лотов); вызывается
+// при каждом пересчёте, а не только при вводе конкретного поля
+function maybeAutoFillStop(){
+  if(autoFillStopFromTargetPrice()) return;
+  if(autoFillStopFromTargetProfit()) return;
+  // ни один способ не сработал (например, пропали входы) — если стоп при
+  // этом всё ещё помечен как автоматический, сбрасываем поле, чтобы не
+  // оставлять устаревшее число
+  const s = state[currentInstr];
+  if(s.stopAutoFilled){
+    s.slPrice = '';
+    s.stopAutoFilled = false;
+    el('slPrice').value = '';
+  }
+}
+
 function renderTargetPrice(){
   const t = calculateTargetFromPrice();
   const box = el('targetPriceResult');
@@ -647,6 +785,7 @@ function renderStopPrice(){
   btn.disabled = false;
   btn.onclick = ()=>{
     state[currentInstr].slPrice = r.priceVal.toFixed(r.decimals);
+    state[currentInstr].stopAutoFilled = false; // применено явным действием пользователя
     el('slPrice').value = state[currentInstr].slPrice;
     renderCalc();
   };
@@ -883,6 +1022,9 @@ el('saveCalcBtn').addEventListener('click', saveCalculation);
 loadHistory();
 
 function renderCalc(){
+  autoFillEntryVolumes();
+  maybeAutoFillStop();
+  syncTargetFields();
   const res = calculate();
   renderResults(res);
   renderLadder(res);
@@ -893,14 +1035,20 @@ function renderCalc(){
 }
 
 el('addEntry').addEventListener('click', ()=>{
-  state[currentInstr].entries.push({price:'', volume:''});
+  state[currentInstr].entries.push({price:'', volume:'', volumeAutoFilled:false});
   buildEntryRows();
   renderCalc();
 });
 el('dirLong').addEventListener('click', ()=>{ state[currentInstr].direction='long'; renderForm(); renderCalc(); updateDirectionBg(); });
 el('dirShort').addEventListener('click', ()=>{ state[currentInstr].direction='short'; renderForm(); renderCalc(); updateDirectionBg(); });
 ['deposit','slPrice','pointValue','commission','targetRisk','targetProfit','targetPriceInput','stopPriceInput'].forEach(id=>{
-  el(id).addEventListener('input', e=>{ state[currentInstr][id] = e.target.value; renderCalc(); });
+  el(id).addEventListener('input', e=>{
+    state[currentInstr][id] = e.target.value;
+    if(id==='slPrice') state[currentInstr].stopAutoFilled = false; // пользователь тронул стоп руками — больше не перезаписываем
+    if(id==='targetProfit') state[currentInstr].lastTargetField = 'profit'; // ведущее поле — сумма, цена подстроится под неё
+    if(id==='targetPriceInput') state[currentInstr].lastTargetField = 'price'; // ведущее поле — цена, сумма подстроится под неё
+    renderCalc();
+  });
 });
 el('resetBtn').addEventListener('click', ()=>{
   state[currentInstr] = getDefaultState(currentInstr);
