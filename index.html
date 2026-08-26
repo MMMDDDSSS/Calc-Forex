@@ -295,15 +295,16 @@ body{
 
 <script>
 const instruments = {
-  EURUSD:{ label:'EURUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#4C8BF5', icon:'🇪🇺' },
-  GBPUSD:{ label:'GBPUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#A855F7', icon:'🇬🇧' },
-  GER40: { label:'GER40',  pointValue:1.17,   commission:0.61, decimals:2, dynamicComm:true,  color:'#F472B6', icon:'📊' },
-  US100: { label:'US100',  pointValue:1,      commission:0.60, decimals:2, dynamicComm:false, color:'#E8A33D', icon:'📈' },
+  EURUSD:{ label:'EURUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#4C8BF5', icon:'🇪🇺', marginLeverage:50 },
+  GBPUSD:{ label:'GBPUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#A855F7', icon:'🇬🇧', marginLeverage:50 },
+  GER40: { label:'GER40',  pointValue:1.17,   commission:0.61, decimals:2, dynamicComm:true,  color:'#F472B6', icon:'🇩🇪', marginLeverage:10 },
+  US100: { label:'US100',  pointValue:1,      commission:0.60, decimals:2, dynamicComm:false, color:'#E8A33D', icon:'🇺🇸', marginLeverage:10 },
 };
 
 const RR_DEFS = [
   {mult:1,   label:'RR 1:1',   color:'#F59E0B'},
   {mult:1.3, label:'RR 1:1.3', color:'#A855F7'},
+  {mult:1.5, label:'RR 1:1.5', color:'#84CC16'},
   {mult:2,   label:'RR 1:2',   color:'#06B6D4'},
   {mult:3,   label:'RR 1:3',   color:'#10B981'},
   {mult:4,   label:'RR 1:4',   color:'#3B82F6'},
@@ -325,7 +326,7 @@ function getDefaultState(key){
     deposit: 100000, direction: 'long', slPrice: '',
     stopAutoFilled: false, // true, если стоп подставлен автоматически (не руками) — тогда его можно пересчитывать
     pointValue: cfg.pointValue, commission: cfg.commission,
-    entries: [ {price:'', volume:'', volumeAutoFilled:false}, {price:'', volume:'', volumeAutoFilled:false} ],
+    entries: [ {price:'', volume:'', volumeTouched:false}, {price:'', volume:'', volumeTouched:false} ],
     targetRisk: '',
     targetProfit: '',
     targetPriceInput: '',
@@ -458,7 +459,7 @@ function buildEntryRows(){
       const i = +e.target.dataset.i, f = e.target.dataset.f;
       state[currentInstr].entries[i][f] = e.target.value;
       if(f==='volume'){
-        state[currentInstr].entries[i].volumeAutoFilled = false; // лот введён вручную — не подставляем дефолт поверх
+        state[currentInstr].entries[i].volumeTouched = true; // любое ручное взаимодействие — больше не подставляем дефолт сюда
         renderCalc(true); // изменение лотов не должно двигать уже установленный стоп
       } else {
         renderCalc();
@@ -480,22 +481,22 @@ function getValidEntries(s){
     .filter(e=>!isNaN(e.price) && !isNaN(e.volume) && e.volume>0);
 }
 
-// маржа считается без учёта плеча (допущение: leverage=1, т.е. полная
-// номинальная стоимость позиции) — при необходимости легко скорректировать
-// через переменную MARGIN_LEVERAGE ниже
-const MARGIN_LEVERAGE = 1;
+// плечо для расчёта маржи — своё для каждого инструмента (задано в
+// instruments[key].marginLeverage): EURUSD/GBPUSD — 50, GER40/US100 — 10.
 const MARGIN_WARN_PERCENT = 70; // порог, после которого маржа подсвечивается ярко-красным
 
 function calculateMargin(){
   const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
   const pointValue = parseFloat(s.pointValue)||0;
   const deposit = parseFloat(s.deposit)||0;
+  const leverage = cfg.marginLeverage || 1;
   if(pointValue<=0 || deposit<=0) return null;
   const valid = getValidEntries(s);
   if(valid.length===0) return null;
   const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
   const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
-  const margin = avgEntry*pointValue*totalVolume/MARGIN_LEVERAGE;
+  const margin = avgEntry*pointValue*totalVolume/leverage;
   const percent = margin/deposit*100;
   return { margin, percent };
 }
@@ -686,20 +687,20 @@ function syncTargetFields(){
   }
 }
 
-// если у входа указана цена, а лот пуст (или ранее был подставлен
-// автоматически) — подставляем 1 лот и отражаем это в самом поле «Лоты»,
-// чтобы было видно, на основании чего считается результат. Ручной ввод лота
-// это отключает (флаг volumeAutoFilled сбрасывается в обработчике input).
+// если у входа указана цена, а лот ещё ни разу не трогали руками —
+// подставляем 1 лот и отражаем это в самом поле «Лоты», чтобы было видно,
+// на основании чего считается результат. Как только пользователь сам
+// что-то сделал с полем «Лоты» (ввёл число ИЛИ стёр значение бэкспейсом) —
+// флаг volumeTouched встаёт навсегда для этого входа, и дефолт больше не
+// подставляется, даже если поле снова стало пустым.
 function autoFillEntryVolumes(){
   const s = state[currentInstr];
   s.entries.forEach((entry, i)=>{
+    if(entry.volumeTouched) return; // пользователь уже взаимодействовал с этим полем — не трогаем
     const priceNum = parseFloat(entry.price);
     if(isNaN(priceNum)) return; // цена ещё не введена — лот не трогаем
-    const manualVolume = entry.volume !== '' && !entry.volumeAutoFilled;
-    if(manualVolume) return; // лот введён вручную — не подставляем
-    if(entry.volume === '1' && entry.volumeAutoFilled) return; // уже стоит дефолт — ничего не меняем
+    if(entry.volume === '1') return; // уже стоит дефолт — ничего не меняем
     entry.volume = '1';
-    entry.volumeAutoFilled = true;
     const input = document.querySelector(`#entriesList input[data-i="${i}"][data-f="volume"]`);
     if(input) input.value = '1';
   });
@@ -854,7 +855,7 @@ function renderLadder(res){
 
   const points = [
     {key:'sl',    label:'Стоп', price:res.slPrice,  valText: fmtMoney(-res.riskNet),                 hex:'#F2545B', a:0.9,  dashed:false},
-    {key:'entry', label:'ВХОД', price:res.avgEntry, valText: fmt(res.totalVolume,2)+' лот',           hex:'#38BDF8', a:0.9,  dashed:true},
+    {key:'entry', label:'ТВХ', price:res.avgEntry, valText: fmt(res.totalVolume,2)+' лот',           hex:'#38BDF8', a:0.9,  dashed:true},
     ...allProfitLevels.map(l=>({key:l.label, label:l.label, price:l.priceTarget, valText: fmtMoney(l.netProfit), hex:l.color, a:0.9, dashed:false}))
   ];
   const prices = points.map(p=>p.price);
@@ -1089,7 +1090,7 @@ function renderCalc(skipStopAutoFill){
 }
 
 el('addEntry').addEventListener('click', ()=>{
-  state[currentInstr].entries.push({price:'', volume:'', volumeAutoFilled:false});
+  state[currentInstr].entries.push({price:'', volume:'', volumeTouched:false});
   buildEntryRows();
   renderCalc();
 });
