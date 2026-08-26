@@ -73,6 +73,11 @@ body{
   border-radius:6px;padding:6px 8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
 }
 .field input:focus{outline:none;border-color:var(--entry);}
+.margin-val{
+  width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--muted);
+  border-radius:6px;padding:6px 8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
+  box-sizing:border-box;transition:color .2s ease;
+}
 .dir-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
 .dir-btn{flex:1;padding:5px 0;background:var(--panel-2);color:var(--muted);border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:11px;}
 .dir-btn.active.long{background:rgba(34,195,166,.18);color:var(--long);}
@@ -205,12 +210,13 @@ body{
         <p class="panel-title">Параметры сделки</p>
         <div class="cfg-grid">
           <div class="field"><label>Депозит ($)</label><input type="number" id="deposit" step="100"></div>
+          <div class="field"><label>Маржа</label><div class="margin-val" id="marginVal">—</div></div>
           <div class="field"><label>Направление</label>
             <div class="dir-toggle"><button class="dir-btn long" id="dirLong">Лонг</button><button class="dir-btn short" id="dirShort">Шорт</button></div>
           </div>
           <div class="field"><label>Стоп (SL)</label><input type="number" id="slPrice" step="any"></div>
           <div class="field"><label id="pointValueLabel">$/пункт/лот</label><input type="number" id="pointValue" step="any"></div>
-          <div class="field" style="grid-column:1/-1;"><label>Комиссия ($/лот)</label><input type="number" id="commission" step="any"></div>
+          <div class="field"><label>Комиссия ($/лот)</label><input type="number" id="commission" step="any"></div>
           <div class="field" style="grid-column:1/-1;">
             <label>Шаг цены (стрелками ↑↓ в полях цены)</label>
             <div class="step-toggle" id="stepToggle"></div>
@@ -243,7 +249,11 @@ body{
           <div class="reverse-result" id="stopPriceResult">—</div>
           <button class="apply-btn" id="applyStopPrice" disabled>Применить</button>
         </div>
-        <div class="reverse-row" style="margin-top:8px;">
+      </div>
+
+      <div class="panel">
+        <p class="panel-title">Таргет</p>
+        <div class="reverse-row">
           <div class="field"><label>Таргет ($)</label><input type="number" id="targetProfit" step="any" placeholder="12000"></div>
           <div class="reverse-result" id="targetResult">—</div>
           <button class="apply-btn" id="applyTarget" disabled>Применить</button>
@@ -380,7 +390,16 @@ function buildRRToggles(){
 
 function stepOptions(decimals){
   const base = Math.pow(10, -decimals);
-  return [1,10,100,1000].map(mult => +(base*mult).toFixed(decimals));
+  const mults = [1,10,100,1000, Math.pow(10, decimals)]; // последний шаг — всегда ровно 1.0
+  const seen = new Set();
+  const out = [];
+  mults.forEach(mult=>{
+    const val = +(base*mult).toFixed(decimals);
+    if(seen.has(val)) return; // не дублируем, если 1.0 уже есть среди первых четырёх (напр. для GER40/US100)
+    seen.add(val);
+    out.push(val);
+  });
+  return out;
 }
 
 function buildStepToggle(){
@@ -438,8 +457,12 @@ function buildEntryRows(){
     inp.addEventListener('input', e=>{
       const i = +e.target.dataset.i, f = e.target.dataset.f;
       state[currentInstr].entries[i][f] = e.target.value;
-      if(f==='volume') state[currentInstr].entries[i].volumeAutoFilled = false; // лот введён вручную — не подставляем дефолт поверх
-      renderCalc();
+      if(f==='volume'){
+        state[currentInstr].entries[i].volumeAutoFilled = false; // лот введён вручную — не подставляем дефолт поверх
+        renderCalc(true); // изменение лотов не должно двигать уже установленный стоп
+      } else {
+        renderCalc();
+      }
     });
   });
   list.querySelectorAll('.rm-btn').forEach(btn=>{
@@ -455,6 +478,34 @@ function getValidEntries(s){
   return s.entries
     .map(e=>({price:parseFloat(e.price), volume:parseFloat(e.volume)}))
     .filter(e=>!isNaN(e.price) && !isNaN(e.volume) && e.volume>0);
+}
+
+// маржа считается без учёта плеча (допущение: leverage=1, т.е. полная
+// номинальная стоимость позиции) — при необходимости легко скорректировать
+// через переменную MARGIN_LEVERAGE ниже
+const MARGIN_LEVERAGE = 1;
+const MARGIN_WARN_PERCENT = 70; // порог, после которого маржа подсвечивается ярко-красным
+
+function calculateMargin(){
+  const s = state[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const deposit = parseFloat(s.deposit)||0;
+  if(pointValue<=0 || deposit<=0) return null;
+  const valid = getValidEntries(s);
+  if(valid.length===0) return null;
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const margin = avgEntry*pointValue*totalVolume/MARGIN_LEVERAGE;
+  const percent = margin/deposit*100;
+  return { margin, percent };
+}
+
+function renderMargin(){
+  const box = el('marginVal');
+  const m = calculateMargin();
+  if(!m){ box.textContent = '—'; box.style.color = ''; return; }
+  box.textContent = fmt(m.percent,2)+'%';
+  box.style.color = m.percent < MARGIN_WARN_PERCENT ? 'var(--long)' : '#FF2D2D';
 }
 
 function calculate(){
@@ -1021,10 +1072,12 @@ function deleteCalculation(id){
 el('saveCalcBtn').addEventListener('click', saveCalculation);
 loadHistory();
 
-function renderCalc(){
+function renderCalc(skipStopAutoFill){
   autoFillEntryVolumes();
-  maybeAutoFillStop();
-  syncTargetFields();
+  if(!skipStopAutoFill){
+    maybeAutoFillStop();
+    syncTargetFields();
+  }
   const res = calculate();
   renderResults(res);
   renderLadder(res);
@@ -1032,6 +1085,7 @@ function renderCalc(){
   renderTarget();
   renderTargetPrice();
   renderStopPrice();
+  renderMargin();
 }
 
 el('addEntry').addEventListener('click', ()=>{
@@ -1055,6 +1109,21 @@ el('resetBtn').addEventListener('click', ()=>{
   renderForm(); renderCalc();
 });
 el('dirBgToggle').addEventListener('change', updateDirectionBg);
+
+// Enter в полях риска/таргета — то же самое, что нажать «Применить»
+[
+  ['targetRisk','applyReverse'],
+  ['stopPriceInput','applyStopPrice'],
+  ['targetProfit','applyTarget'],
+  ['targetPriceInput','applyTargetPrice']
+].forEach(([inputId, btnId])=>{
+  el(inputId).addEventListener('keydown', e=>{
+    if(e.key !== 'Enter') return;
+    e.preventDefault();
+    const btn = el(btnId);
+    if(!btn.disabled) btn.click();
+  });
+});
 
 buildTabs();
 buildRRToggles();
